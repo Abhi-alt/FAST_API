@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Path
+from pydantic import BaseModel
 
 app = FastAPI();
 persons = {
@@ -32,3 +33,24 @@ def get_person_by_name(name : str):
         if persons[person_id]["name"] == name:
             return persons[person_id]
     return {"msg": "Data not found"}
+
+class Persons(BaseModel):
+    name: str
+    age: int
+    role: str
+    id: int
+
+@app.post("/add-person")
+def add_person(person: Persons):
+    for person_id in persons:
+        if person_id == person.id:
+            return {"msg": "This id details already exists"}
+    persons[person.id] = {
+        "name": person.name,
+        "age": person.age,
+        "role": person.role
+    }
+
+@app.get("/get-persons")
+def get_persons():
+    return persons
